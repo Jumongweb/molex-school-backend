@@ -1,11 +1,11 @@
 package molek_school.config;
 
-import com.jumong.E.TMotors.security.CustomUserDetailsService;
-import com.jumong.E.TMotors.service.impl.JWTService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import molek_school.security.CustomUserDetailsService;
+import molek_school.service.impl.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
