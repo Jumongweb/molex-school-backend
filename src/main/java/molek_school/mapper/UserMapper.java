@@ -1,8 +1,9 @@
 package molek_school.mapper;
 
-import com.jumong.E.TMotors.dto.request.RegisterRequest;
-import com.jumong.E.TMotors.dto.response.UserResponse;
-import com.jumong.E.TMotors.model.User;
+
+import molek_school.dto.request.RegisterRequest;
+import molek_school.dto.response.UserResponse;
+import molek_school.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;

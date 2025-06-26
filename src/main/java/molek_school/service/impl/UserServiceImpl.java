@@ -1,16 +1,16 @@
 package molek_school.service.impl;
 
-import com.jumong.E.TMotors.dto.request.LoginRequest;
-import com.jumong.E.TMotors.dto.request.RegisterRequest;
-import com.jumong.E.TMotors.dto.response.LoginResponse;
-import com.jumong.E.TMotors.dto.response.UserResponse;
-import com.jumong.E.TMotors.exception.CarException;
-import com.jumong.E.TMotors.mapper.UserMapper;
-import com.jumong.E.TMotors.model.User;
-import com.jumong.E.TMotors.repository.UserRepository;
-import com.jumong.E.TMotors.service.interfac.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import molek_school.dto.request.LoginRequest;
+import molek_school.dto.request.RegisterRequest;
+import molek_school.dto.response.LoginResponse;
+import molek_school.dto.response.UserResponse;
+import molek_school.exceptions.MolexException;
+import molek_school.mapper.UserMapper;
+import molek_school.model.User;
+import molek_school.repository.UserRepository;
+import molek_school.service.interfac.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -40,40 +40,39 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse findUserById(Long userId) {
         if (userId == null) {
-            throw new CarException("User ID cannot be null");
+            throw new MolexException("User ID cannot be null");
         }
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CarException("User Not Found"));
+                .orElseThrow(() -> new MolexException("User Not Found"));
         return userMapper.toUserResponse(user);
     }
 
     private void validate(RegisterRequest registerRequest){
         if (registerRequest == null){
             log.info("RegisterRequest is null");
-            throw new CarException("RegisterRequest is null");
+            throw new MolexException("RegisterRequest is null");
         }
         if (registerRequest.getPassword() == null){
             log.info("RegisterRequest password is null");
-            throw new CarException("RegisterRequest password is null");
+            throw new MolexException("RegisterRequest password is null");
         }
 
         if (registerRequest.getConfirmPassword() == null){
             log.info("RegisterRequest confirmPassword is null");
-            throw new CarException("RegisterRequest confirmPassword is null");
+            throw new MolexException("RegisterRequest confirmPassword is null");
         }
         if (!registerRequest.getPassword().equals(registerRequest.getConfirmPassword())){
-            throw new CarException("Passwords do not match");
+            throw new MolexException("Passwords do not match");
         }
         User user = userRepository.findUserByEmail(registerRequest.getEmail());
         if (user != null){
-            throw new CarException("User already exists");
+            throw new MolexException("User already exists");
         }
     }
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         validateLoginRequest(loginRequest);
-
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
@@ -84,16 +83,6 @@ public class UserServiceImpl implements UserService {
             token = jwtService.generateToken(email);
         }
 
-        User user = userRepository.findUserByEmail(email);
-        log.info("------> User from login ---------> {}", user);
-        if (user == null){
-            log.info("User not found");
-            throw new CarException("User Not Found");
-        }
-        if (!passwordEncoder.matches(password, user.getPassword())){
-            log.info("Invalid email or password");
-            throw new CarException("Invalid email or password");
-        }
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setMessage("Login successful");
         loginResponse.setToken(token);
@@ -109,17 +98,27 @@ public class UserServiceImpl implements UserService {
     private void validateLoginRequest(LoginRequest loginRequest) {
         if (loginRequest == null){
             log.info("LoginRequest is null");
-            throw new CarException("LoginRequest cannot be empty");
+            throw new MolexException("LoginRequest cannot be empty");
         }
         if (loginRequest.getEmail() == null){
             log.info("LoginRequest email is null");
-            throw new CarException("Email cannot be empty");
+            throw new MolexException("Email cannot be empty");
         }
         if (loginRequest.getPassword() == null){
             log.info("LoginRequest password is null");
-            throw new CarException("Password cannot be empty");
+            throw new MolexException("Password cannot be empty");
         }
+        User user = userRepository.findUserByEmail(loginRequest.getEmail());
+        log.info("------> User from login ---------> {}", user);
 
+        if (user == null){
+            log.info("User not found");
+            throw new MolexException("User Not Found");
+        }
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())){
+            log.info("Invalid email or password");
+            throw new MolexException("Invalid email or password");
+        }
 
     }
 
